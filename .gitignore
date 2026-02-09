@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+memo.txt
+.env
+multidomain_inventory_standalone.py
