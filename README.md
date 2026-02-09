@@ -46,14 +46,14 @@ By acting as an MCP server, it allows AI assistants like **Claude Desktop** to d
 
 #### AI Assistant (via MCP)
 Interact with your network infrastructure using natural language in Claude Desktop.
-<img width="800" alt="MCP Integration Concept" src="https://github.com/user-attachments/assets/ac9e84ff-f72e-4766-b172-8d3b5a9980c7" />
+<img width="800" alt="MCP Integration Concept" src="https://github.com/user-attachments/assets/e6a5effd-a6c1-402e-be97-f54f3602cda5" />
 
 #### Web Interface
 ```bash
 python multidomain_inventory_web.py
 ```
 
-<img width="800" alt="Flask web app" src="https://github.com/user-attachments/assets/6df6d4d6-0d5e-4cfc-a63e-92c4be0acbe3" />
+<img width="800" alt="Flask web app" src="https://github.com/user-attachments/assets/6e6f32d6-e29e-4b53-bf13-e3f40079fa55" />
 *(Note: Using the Web UI screenshot as a reference for inventory visibility)*
 
 #### CLI
