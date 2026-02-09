@@ -22,6 +22,7 @@ By acting as an MCP server, it allows AI assistants like **Claude Desktop** to d
 1. **Clone the repository**:
    ```bash
    git clone [https://github.com/kikuta/Cisco-multidomain-inventory.git](https://github.com/kikuta/Cisco-multidomain-inventory.git)
+
    cd Cisco-multidomain-inventory
    ```
 
@@ -81,6 +82,7 @@ MCPサーバーとして動作することで、**Claude Desktop** などのAI�
 1. **リポジトリのクローン**:
    ```bash
    git clone [https://github.com/kikuta/Cisco-multidomain-inventory.git](https://github.com/kikuta/Cisco-multidomain-inventory.git)
+   
    cd Cisco-multidomain-inventory
    ```
 
