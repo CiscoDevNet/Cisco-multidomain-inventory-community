@@ -81,7 +81,7 @@ MCPサーバーとして動作することで、**Claude Desktop** などのAI�
 1. **リポジトリのクローン**:
    ```bash
    git clone https://github.com/kikuta/Cisco-multidomain-inventory.git
-      cd Cisco-multidomain-inventory
+   cd Cisco-multidomain-inventory
    ```
 
 2. **仮想環境の作成と有効化**:
