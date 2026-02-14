@@ -35,20 +35,22 @@ You don't need to remember commands. Just ask Claude naturally.
 **🔍 Search & Discovery**
 * "Find the device with IP address 192.168.10.5."
 * "Where is the switch named 'JP-Tokyo-Core' located?"
-* "Search for serial number FGL12345678 across all domains."
 * "Do we have any Catalyst 9300 switches in the inventory?"
+* "Search for serial `FGLxxxx` and show me the Model and Firmware version."
 
 **🏥 Health & Status**
-* "Show me all offline devices in the Meraki domain."
-* "Are there any critical issues in the SD-WAN fabric?"
+* "List all offline devices in the Meraki domain."
+* "Are there any critical errors in the SD-WAN fabric?"
 * "List all devices that are currently unreachable."
 * "Check the status of the device with IP 10.1.1.1."
 
-**📊 Inventory & Analysis**
+**📊 Inventory Analysis**
 * "Summarize the total number of devices per domain."
-* "What firmware versions are running on my Catalyst switches?"
-* "Create a table of all ACI spines and leafs."
-* "Compare the device count between Meraki and SD-WAN."
+* "List the firmware versions of all Catalyst switches."
+* "Visualize the breakdown of Catalyst models using a **text-based bar chart**."
+* "Create a table listing all ACI Spines and Leafs."
+* "Compare the device counts between Meraki and SD-WAN."
+* "Generate a **Mermaid pie chart** showing the ratio of Healthy vs Unhealthy devices."
 
 ### 🛠 Setup
 
@@ -127,8 +129,8 @@ Claude Desktopに接続後、**スラッシュコマンド** または **自然�
 **🔍 検索・探索**
 * 「IPアドレス 192.168.10.5 のデバイスを探して」
 * 「'JP-Tokyo-Core' という名前のスイッチはどこにある？」
-* 「シリアル番号 FGL12345678 を全ドメインから検索して」
 * 「インベントリの中にCatalyst 9300はある？」
+* 「シリアル `FGLxxxx` を検索して、モデルとファームウェアバージョンを表示して」
 
 **🏥 ヘルスチェック・状態確認**
 * 「Merakiドメインでオフラインになっているデバイスを一覧表示して」
@@ -139,8 +141,10 @@ Claude Desktopに接続後、**スラッシュコマンド** または **自然�
 **📊 インベントリ分析**
 * 「ドメインごとのデバイス総数をサマリーして」
 * 「Catalystスイッチのファームウェアバージョンを一覧にして」
+* 「Catalystのモデル別内訳を **テキスト形式の棒グラフ** で可視化して」
 * 「ACIのSpineとLeafのリストを表形式で作って」
 * 「MerakiとSD-WANのデバイス数を比較して」
+* 「正常 vs 異常デバイスの比率を示す **Mermaid円グラフ** を生成して」
 
 ### 🛠 セットアップ
 
