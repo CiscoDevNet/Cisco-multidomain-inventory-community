@@ -54,7 +54,7 @@ You don't need to remember commands. Just ask Claude naturally.
 
 1. **Clone the repository**:
    ```bash
-   git clone [https://github.com/kikuta/Cisco-multidomain-inventory.git](https://github.com/kikuta/Cisco-multidomain-inventory.git)
+   git clone https://github.com/kikuta/Cisco-multidomain-inventory.git
    cd Cisco-multidomain-inventory
    ```
 
@@ -146,7 +146,7 @@ Claude Desktopに接続後、**スラッシュコマンド** または **自然�
 
 1. **リポジトリのクローン**:
    ```bash
-   git clone [https://github.com/kikuta/Cisco-multidomain-inventory.git](https://github.com/kikuta/Cisco-multidomain-inventory.git)
+   git clone https://github.com/kikuta/Cisco-multidomain-inventory.git
    cd Cisco-multidomain-inventory
    ```
 
@@ -199,4 +199,4 @@ This tool is for educational and testing purposes. Please verify in a lab enviro
 ---
 
 ## 👤 Author
-* **Kazumasa Ikuta** (kikuta@cisco.com)
+* **Kazumasa Ikuta** (kikuta at cisco.com)
