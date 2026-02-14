@@ -151,43 +151,56 @@ def get_unhealthy_devices() -> str:
     return json.dumps(issues, indent=2, ensure_ascii=False)
 
 # ==============================================================================
-# PROMPTS: Pre-defined Templates
-# プロンプト: ユーザーがすぐに使える定義済みの指示テンプレート
+# PROMPTS: Pre-defined Templates (Updated with Skill Instructions)
+# プロンプト: 定義済みの指示テンプレート（Skillの指示内容を統合済み）
 # ==============================================================================
 
 @mcp.prompt()
 def network_health_check() -> str:
     """
-    Creates a prompt to check the overall health of the network.
-    It guides the LLM to first check the summary, then investigate any unhealthy devices.
+    Execute a full network health check and report in Japanese table format.
     
-    ネットワーク全体の健全性をチェックするためのプロンプトを作成します。
-    まずサマリーを確認し、その後、異常なデバイスがあれば調査するようにLLMを誘導します。
+    ネットワーク全体の健全性チェックを実行し、日本語の表形式でレポートを作成します。
     """
     return """
-    Please perform a network health check following these steps:
-    1. Read the resource 'inventory://summary' to understand the overall status and device counts.
-    2. If there are any 'health_issues' reported in the summary, use the 'get_unhealthy_devices' tool to list them.
-    3. Provide a concise report summarizing the network status and detailing any problematic devices.
+    Please perform a network health check following these strict guidelines:
+
+    1. **Context Analysis**: 
+       - Read the resource 'inventory://summary' to understand the overall status and device counts.
+    
+    2. **Issue Detection**:
+       - If there are any 'health_issues' reported in the summary, use the 'get_unhealthy_devices' tool to list them.
+    
+    3. **Report Generation (Japanese)**:
+       - Provide a concise report summarizing the network status.
+       - Use **Tables** to structure the data (Total devices, Breakdown by domain, Issues).
+       - Highlight any critical issues (offline, error) in **Bold**.
+       - Include clickable Dashboard URLs if available.
+       - Be direct and honest with feedback.
     """
 
 @mcp.prompt()
 def investigate_device(hostname_or_ip: str) -> str:
     """
-    Creates a prompt to investigate a specific device.
+    Investigate a specific device and report details in Japanese.
     
-    特定のデバイスを調査するためのプロンプトを作成します。
+    特定のデバイスを調査し、詳細を日本語で報告します。
     
     Args:
-        hostname_or_ip: The name, IP, or Serial of the device to investigate.
-                        調査対象のデバイス名、IP、またはシリアル番号。
+        hostname_or_ip: Target device name or IP
+                        調査対象のデバイス名またはIP
     """
     return f"""
     I need details about a specific device: '{hostname_or_ip}'.
     
-    1. Use the 'search_devices' tool to find this device across all domains.
-    2. If found, present its full details (Status, IP, Model, Serial, Dashboard URL).
-    3. If multiple devices match, list them all.
+    1. **Search**: 
+       - Use the 'search_devices' tool to find this device across all domains.
+    
+    2. **Reporting (Japanese)**:
+       - If found, present its full details in a **Japanese Table**.
+       - Columns should include: Domain, Status, Model, Serial, Version, IP, Dashboard URL.
+       - **Bold** any error status or issues.
+       - If the device is not found or multiple devices match, list the findings clearly.
     """
 
 if __name__ == "__main__":
