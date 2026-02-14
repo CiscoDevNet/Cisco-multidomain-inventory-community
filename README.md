@@ -19,28 +19,36 @@ By acting as an MCP server, it allows AI assistants like **Claude Desktop** to d
 
 ### 🤖 AI Assistant Workflows (Tutorial)
 
-Once connected to Claude Desktop, you can use the following pre-defined **Prompts** to automate complex tasks.
+Once connected to Claude Desktop, you can interact with the server using **Slash Commands** or **Natural Language**.
 
-#### 1. Network Health Check
-Instantly analyze the status of all devices across all domains.
-* **Command**: Type `/` in Claude and select **`network_health_check`**
-* **What it does**:
-    1.  Retrieves a summary of all devices.
-    2.  Identifies any "unhealthy" devices (offline, errors, alerts).
-    3.  **Output**: Generates a structured report with tables, highlighting critical issues in bold.
+#### 1. Slash Commands (Pre-defined Workflows)
+Type the following commands directly into the chat input.
 
-#### 2. Device Investigation
-Search for a specific device across all domains using its Name, IP, or Serial Number.
-* **Command**: Type `/` and select **`investigate_device`** (then enter the IP or Hostname)
-* **What it does**:
-    1.  Searches across ACI, Meraki, Catalyst, and SD-WAN simultaneously.
-    2.  **Output**: Displays a detailed table with the device's status, model, firmware version, and a direct link to its dashboard.
+| Command | Usage | Description |
+| :--- | :--- | :--- |
+| **`/network_health_check`** | Type `/network`... | **Health Check**: Retrieves a summary of all devices and generates a structured report of any "unhealthy" devices (offline, errors). |
+| **`/investigate_device`** | Type `/investigate`... | **Deep Dive**: Searches for a specific device (by IP, Name, or Serial) across all domains and displays detailed status/links. |
 
-#### 3. Natural Language Queries
-You can also ask free-form questions. The AI will automatically select the right tools (`search_devices`, `get_unhealthy_devices`, etc.).
-* *"Show me all offline devices in the Meraki domain."*
-* *"What is the firmware version of the switch with IP 192.168.1.5?"*
-* *"Summarize the total number of devices per domain."*
+#### 2. Natural Language Examples
+You don't need to remember commands. Just ask Claude naturally.
+
+**🔍 Search & Discovery**
+* "Find the device with IP address 192.168.10.5."
+* "Where is the switch named 'JP-Tokyo-Core' located?"
+* "Search for serial number FGL12345678 across all domains."
+* "Do we have any Catalyst 9300 switches in the inventory?"
+
+**🏥 Health & Status**
+* "Show me all offline devices in the Meraki domain."
+* "Are there any critical issues in the SD-WAN fabric?"
+* "List all devices that are currently unreachable."
+* "Check the status of the device with IP 10.1.1.1."
+
+**📊 Inventory & Analysis**
+* "Summarize the total number of devices per domain."
+* "What firmware versions are running on my Catalyst switches?"
+* "Create a table of all ACI spines and leafs."
+* "Compare the device count between Meraki and SD-WAN."
 
 ### 🛠 Setup
 
@@ -103,28 +111,36 @@ MCPサーバーとして動作することで、**Claude Desktop** などのAI�
 
 ### 🤖 AIアシスタント活用ガイド (チュートリアル)
 
-Claude Desktopに接続後、以下の定義済み **プロンプト（Prompts）** を使用することで、複雑な調査を自動化できます。
+Claude Desktopに接続後、**スラッシュコマンド** または **自然言語** で指示を出すことができます。
 
-#### 1. ネットワーク・ヘルスチェック
-全ドメインのデバイス状態を即座に診断します。
-* **使い方**: Claudeの入力欄で `/` を入力し、メニューから **`network_health_check`** を選択（または入力）します。
-* **動作**:
-    1.  全デバイスのサマリーを取得します。
-    2.  「異常あり（Unhealthy）」なデバイス（オフライン、エラー等）を自動抽出します。
-    3.  **結果**: 日本語のテーブル形式でレポートを作成し、問題箇所を太字で強調表示します。
+#### 1. スラッシュコマンド（定型ワークフロー）
+チャット欄に `/` を入力し、コマンドをタイプしてください。
 
-#### 2. デバイス詳細調査
-IPアドレス、ホスト名、シリアル番号を使って、全ドメインを横断検索します。
-* **使い方**: Claudeの入力欄で `/` を入力し、 **`investigate_device`** を選択します（引数として対象のIPや名前を入力）。
-* **動作**:
-    1.  ACI, Meraki, Catalyst, SD-WAN の全域から対象を検索します。
-    2.  **結果**: ステータス、モデル、ファームウェアバージョン、管理画面への直リンクなどをテーブル形式で表示します。
+| コマンド | 入力例 | 機能説明 |
+| :--- | :--- | :--- |
+| **`/network_health_check`** | `/net` と入力 | **ヘルスチェック**: 全ドメインのサマリーを取得し、異常（オフライン等）があるデバイスを抽出して日本語レポートを作成します。 |
+| **`/investigate_device`** | `/inv` と入力 | **デバイス詳細調査**: IPアドレス、ホスト名、シリアル番号から全ドメインを横断検索し、詳細情報を表示します。 |
 
-#### 3. 自然言語による対話
-プロンプトを使わずに、自然な会話で質問することも可能です。AIが適切なツール（`search_devices` や `get_unhealthy_devices`）を自動で選択します。
-* *「Merakiドメインで落ちているデバイスを全部教えて」*
-* *「IPアドレス 192.168.1.5 のスイッチのバージョンは？」*
-* *「現在のネットワーク全体の台数サマリーを作って」*
+#### 2. 自然言語プロンプト例
+コマンドを覚えなくても、自然な言葉で質問するだけでAIが適切なツールを自動選択します。
+
+**🔍 検索・探索**
+* 「IPアドレス 192.168.10.5 のデバイスを探して」
+* 「'JP-Tokyo-Core' という名前のスイッチはどこにある？」
+* 「シリアル番号 FGL12345678 を全ドメインから検索して」
+* 「インベントリの中にCatalyst 9300はある？」
+
+**🏥 ヘルスチェック・状態確認**
+* 「Merakiドメインでオフラインになっているデバイスを一覧表示して」
+* 「SD-WANファブリックに重大なエラーはある？」
+* 「現在到達不能（Unreachable）なデバイスを全てリストアップして」
+* 「IP 10.1.1.1 のデバイスの状態を確認して」
+
+**📊 インベントリ分析**
+* 「ドメインごとのデバイス総数をサマリーして」
+* 「Catalystスイッチのファームウェアバージョンを一覧にして」
+* 「ACIのSpineとLeafのリストを表形式で作って」
+* 「MerakiとSD-WANのデバイス数を比較して」
 
 ### 🛠 セットアップ
 
@@ -183,4 +199,4 @@ This tool is for educational and testing purposes. Please verify in a lab enviro
 ---
 
 ## 👤 Author
-* **Kazumasa Ikuta** (kikuta@cisco.com)
+* **Kazumasa Ikuta** (kikuta at cisco.com)
