@@ -12,8 +12,10 @@ from multidomain_inventory_core import (
 # FastMCPサーバーの初期化
 mcp = FastMCP("Cisco-MultiDomain-Inventory")
 
-# --- Resources: Static or summary information for context ---
-# --- リソース: コンテキスト把握のための静的情報またはサマリー ---
+# ==============================================================================
+# RESOURCES: Static Information / Context
+# リソース: コンテキスト把握のための静的情報またはサマリー
+# ==============================================================================
 
 @mcp.resource("inventory://summary")
 def get_inventory_summary() -> str:
@@ -52,8 +54,10 @@ def get_inventory_summary() -> str:
             
     return json.dumps(summary, indent=2, ensure_ascii=False)
 
-# --- Tools: Actions the LLM can perform ---
-# --- ツール: LLMが実行可能なアクション ---
+# ==============================================================================
+# TOOLS: Actions / Functions
+# ツール: LLMが実行可能なアクション（検索、詳細取得など）
+# ==============================================================================
 
 @mcp.tool()
 def get_full_inventory() -> str:
@@ -145,6 +149,46 @@ def get_unhealthy_devices() -> str:
         return "No unhealthy devices found. All systems appear normal."
         
     return json.dumps(issues, indent=2, ensure_ascii=False)
+
+# ==============================================================================
+# PROMPTS: Pre-defined Templates
+# プロンプト: ユーザーがすぐに使える定義済みの指示テンプレート
+# ==============================================================================
+
+@mcp.prompt()
+def network_health_check() -> str:
+    """
+    Creates a prompt to check the overall health of the network.
+    It guides the LLM to first check the summary, then investigate any unhealthy devices.
+    
+    ネットワーク全体の健全性をチェックするためのプロンプトを作成します。
+    まずサマリーを確認し、その後、異常なデバイスがあれば調査するようにLLMを誘導します。
+    """
+    return """
+    Please perform a network health check following these steps:
+    1. Read the resource 'inventory://summary' to understand the overall status and device counts.
+    2. If there are any 'health_issues' reported in the summary, use the 'get_unhealthy_devices' tool to list them.
+    3. Provide a concise report summarizing the network status and detailing any problematic devices.
+    """
+
+@mcp.prompt()
+def investigate_device(hostname_or_ip: str) -> str:
+    """
+    Creates a prompt to investigate a specific device.
+    
+    特定のデバイスを調査するためのプロンプトを作成します。
+    
+    Args:
+        hostname_or_ip: The name, IP, or Serial of the device to investigate.
+                        調査対象のデバイス名、IP、またはシリアル番号。
+    """
+    return f"""
+    I need details about a specific device: '{hostname_or_ip}'.
+    
+    1. Use the 'search_devices' tool to find this device across all domains.
+    2. If found, present its full details (Status, IP, Model, Serial, Dashboard URL).
+    3. If multiple devices match, list them all.
+    """
 
 if __name__ == "__main__":
     mcp.run()
