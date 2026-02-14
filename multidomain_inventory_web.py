@@ -19,8 +19,9 @@ UI_TEXT = {
         'btn_csv': 'Export to CSV',
         'btn_refresh': 'Refresh Data',
         'lbl_total': 'Total Devices',
-        'col_domain': 'Domain', 'col_name': 'Name (Click for Detail)', 'col_model': 'Model',
-        'col_serial': 'Serial / UUID', 'col_version': 'Version', 'col_ip': 'Mgmt / System IP'
+        'lbl_controller_breakdown': 'Breakdown by Controller',
+        'col_domain': 'Domain', 'col_controller': 'Controller / Site', 'col_name': 'Name (Click for Detail)', 
+        'col_model': 'Model', 'col_serial': 'Serial / UUID', 'col_version': 'Version', 'col_ip': 'Mgmt / System IP'
     },
     'ja': {
         'title': 'Cisco マルチドメイン 資産管理ダッシュボード',
@@ -28,8 +29,9 @@ UI_TEXT = {
         'btn_csv': 'CSVでエクスポート',
         'btn_refresh': 'データを最新化',
         'lbl_total': '総デバイス数',
-        'col_domain': 'ドメイン', 'col_name': 'ホスト名 (クリックで詳細)', 'col_model': 'モデル',
-        'col_serial': 'シリアル / UUID', 'col_version': 'バージョン', 'col_ip': '管理IP / System IP'
+        'lbl_controller_breakdown': 'コントローラ別 内訳',
+        'col_domain': 'ドメイン', 'col_controller': 'コントローラ / 拠点', 'col_name': 'ホスト名 (クリックで詳細)', 
+        'col_model': 'モデル', 'col_serial': 'シリアル / UUID', 'col_version': 'バージョン', 'col_ip': '管理IP / System IP'
     },
     'ko': {
         'title': 'Cisco 멀티도메인 자산 관리 대시보드',
@@ -37,8 +39,9 @@ UI_TEXT = {
         'btn_csv': 'CSV로 내보내기',
         'btn_refresh': '데이터 새로고침',
         'lbl_total': '총 장치 수',
-        'col_domain': '도메인', 'col_name': '호스트 이름 (클릭 시 상세)', 'col_model': '모델',
-        'col_serial': '시리얼 / UUID', 'col_version': '버전', 'col_ip': '관리 IP / System IP'
+        'lbl_controller_breakdown': '컨트롤러 별 내역',
+        'col_domain': '도메인', 'col_controller': '컨트롤러 / 사이트', 'col_name': '호스트 이름 (클릭 시 상세)', 
+        'col_model': '모델', 'col_serial': '시리얼 / UUID', 'col_version': '버전', 'col_ip': '관리 IP / System IP'
     },
     'zh': {
         'title': 'Cisco 多域资产管理仪表板',
@@ -46,8 +49,9 @@ UI_TEXT = {
         'btn_csv': '导出为 CSV',
         'btn_refresh': '刷新数据',
         'lbl_total': '设备总数',
-        'col_domain': '域', 'col_name': '主机名 (点击查看详情)', 'col_model': '型号',
-        'col_serial': '序列号 / UUID', 'col_version': '版本', 'col_ip': '管理 IP / System IP'
+        'lbl_controller_breakdown': '按控制器细分',
+        'col_domain': '域', 'col_controller': '控制器 / 站点', 'col_name': '主机名 (点击查看详情)', 
+        'col_model': '型号', 'col_serial': '序列号 / UUID', 'col_version': '版本', 'col_ip': '管理 IP / System IP'
     }
 }
 
@@ -79,6 +83,15 @@ HTML_TEMPLATE = """
         .bg-meraki { background: linear-gradient(45deg, #67b346, #4a8c2a); }
         .bg-catalyst { background: linear-gradient(45deg, #00bceb, #008cb3); }
         .bg-sdwan { background: linear-gradient(45deg, #702082, #501060); }
+        
+        /* Controller Cards (Color Coded) */
+        .ctrl-card { background: white; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; border-left: 5px solid #ccc; }
+        .ctrl-card:hover { background-color: #f8f9fa; transform: translateY(-2px); }
+        
+        .ctrl-card-aci { border-left-color: #017cad; }
+        .ctrl-card-meraki { border-left-color: #67b346; }
+        .ctrl-card-catalyst { border-left-color: #00bceb; }
+        .ctrl-card-sdwan { border-left-color: #702082; }
 
         /* Table Badges */
         .badge-aci { background-color: #017cad; }
@@ -91,6 +104,8 @@ HTML_TEMPLATE = """
         .table thead { background-color: #343a40; color: white; }
         .device-link { color: #005073; text-decoration: none; font-weight: 600; }
         .device-link:hover { text-decoration: underline; color: #007cba; }
+        
+        .controller-name { font-weight: bold; color: #555; }
         
         .export-area { margin-top: 30px; text-align: center; }
     </style>
@@ -163,6 +178,25 @@ HTML_TEMPLATE = """
             </div>
         </div>
 
+        {% if stats.controllers %}
+        <h6 class="text-secondary mb-2 ms-1"><i class="bi bi-diagram-2"></i> {{ ui.lbl_controller_breakdown }}</h6>
+        <div class="row mb-4 g-3">
+            {% for ctrl, info in stats.controllers.items() %}
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+                <div class="card ctrl-card ctrl-card-{{ info.domain|lower }} h-100">
+                    <div class="card-body py-2 px-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="badge badge-{{ info.domain|lower }} opacity-75" style="font-size: 0.65rem;">{{ info.domain }}</small>
+                        </div>
+                        <div class="text-dark fw-bold text-truncate" title="{{ ctrl }}">{{ ctrl }}</div>
+                        <div class="fs-4 fw-bold text-dark mt-1">{{ info.count }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <div class="card border-0 shadow-sm">
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -170,6 +204,7 @@ HTML_TEMPLATE = """
                         <thead class="table-dark">
                             <tr>
                                 <th>{{ ui.col_domain }}</th>
+                                <th>{{ ui.col_controller }}</th>
                                 <th>{{ ui.col_name }}</th>
                                 <th>{{ ui.col_model }}</th>
                                 <th>{{ ui.col_serial }}</th>
@@ -182,6 +217,7 @@ HTML_TEMPLATE = """
                             {% if not row.error %}
                             <tr>
                                 <td><span class="badge badge-{{ row.domain|lower }}">{{ row.domain }}</span></td>
+                                <td class="controller-name">{{ row.controller }}</td>
                                 <td><a href="{{ row.dashboard_url }}" target="_blank" class="device-link">{{ row.name }}</a></td>
                                 <td>{{ row.model }}</td>
                                 <td><code class="text-muted">{{ row.serial }}</code></td>
@@ -219,18 +255,35 @@ def get_data_with_cache(force=False):
     return data
 
 def calculate_stats(data):
-    """データからドメインごとの台数を集計する"""
+    """データからドメインごとの台数と、コントローラごとの台数・ドメイン情報を集計する"""
     stats = {
-        'total': 0, 'aci': 0, 'meraki': 0, 'catalyst': 0, 'sdwan': 0
+        'total': 0, 
+        'aci': 0, 'meraki': 0, 'catalyst': 0, 'sdwan': 0,
+        'controllers': {} # { 'CtrlName': {'count': 5, 'domain': 'ACI'}, ... }
     }
+    
     for row in data:
         if "error" in row: continue
+        
+        # Total Count
         stats['total'] += 1
-        domain = row.get('domain', '').lower()
-        if 'aci' in domain: stats['aci'] += 1
-        elif 'meraki' in domain: stats['meraki'] += 1
-        elif 'catalyst' in domain: stats['catalyst'] += 1
-        elif 'sdwan' in domain: stats['sdwan'] += 1
+        
+        # Domain Count
+        domain = row.get('domain', '').strip()
+        d_lower = domain.lower()
+        if 'aci' in d_lower: stats['aci'] += 1
+        elif 'meraki' in d_lower: stats['meraki'] += 1
+        elif 'catalyst' in d_lower: stats['catalyst'] += 1
+        elif 'sdwan' in d_lower: stats['sdwan'] += 1
+        
+        # Controller Count & Metadata
+        ctrl = row.get('controller', 'Unknown')
+        
+        if ctrl not in stats['controllers']:
+            stats['controllers'][ctrl] = {'count': 0, 'domain': domain}
+            
+        stats['controllers'][ctrl]['count'] += 1
+        
     return stats
 
 # --- ルーティング ---
@@ -245,13 +298,15 @@ def index_lang(lang):
     data = get_data_with_cache(force=False)
     stats = calculate_stats(data)
     
-    return render_template_string(
-        HTML_TEMPLATE, 
-        lang=target_lang, 
-        ui=UI_TEXT[target_lang], 
-        data=data,
-        stats=stats
-    )
+    # テンプレートに渡すデータに stats を追加
+    render_params = {
+        'lang': target_lang,
+        'ui': UI_TEXT[target_lang],
+        'data': data,
+        'stats': stats
+    }
+    
+    return render_template_string(HTML_TEMPLATE, **render_params)
 
 @app.route('/refresh/<lang>')
 def refresh_data(lang):
@@ -263,12 +318,14 @@ def export():
     data = get_data_with_cache(force=False)
     si = io.StringIO()
     cw = csv.writer(si)
-    cw.writerow(['Domain', 'Name', 'Model', 'Serial/UUID', 'Version', 'IP Address', 'Dashboard URL'])
+    # CSVヘッダー
+    cw.writerow(['Domain', 'Controller/Site', 'Name', 'Model', 'Serial/UUID', 'Version', 'IP Address', 'Dashboard URL'])
     
     for row in data:
         if "error" in row: continue
         cw.writerow([
             row.get('domain'), 
+            row.get('controller', '-'),
             row.get('name'), 
             row.get('model'), 
             row.get('serial'), 

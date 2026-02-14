@@ -69,10 +69,10 @@ You don't need to remember commands. Just ask Claude naturally.
    pip install -r requirements.txt
    ```
 
-4. **Environment Variables**: 
-   Copy `.env.sample` to `.env` and fill in your controller credentials.
+4. **Configuration**: 
+   Copy `config.yaml.sample` to `config.yaml` and fill in your controller credentials.
    ```bash
-   cp .env.sample .env
+   cp config.yaml.sample config.yaml
    ```
 
 ### 💻 Interface Examples
@@ -162,9 +162,9 @@ Claude Desktopに接続後、**スラッシュコマンド** または **自然�
    ```
 
 4. **環境設定**: 
-   `.env.sample` を `.env` にコピーし、各コントローラの接続情報を入力してください。
+   `config.yaml.sample` を `config.yaml` にコピーし、各コントローラの接続情報を入力してください。
    ```bash
-   cp .env.sample .env
+   cp config.yaml.sample config.yaml
    ```
 
 ---
@@ -199,4 +199,4 @@ This tool is for educational and testing purposes. Please verify in a lab enviro
 ---
 
 ## 👤 Author
-* **Kazumasa Ikuta** (kikuta at cisco.com)
+* **Kazumasa Ikuta** (kikuta@cisco.com)

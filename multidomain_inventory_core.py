@@ -1,95 +1,120 @@
 import os
+import yaml
 import requests
 import urllib3
-from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
-
-# .env ファイルを読み込む
-load_dotenv()
 
 # SSL警告の抑止
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 TIMEOUT = 15
 
-# --- 共通設定 ---
-CONFIG = {
-    "ACI": {
-        "HOST": os.getenv("ACI_HOST"),
-        "USER": os.getenv("ACI_USER"),
-        "PASS": os.getenv("ACI_PASS"),
-        "PROXY": os.getenv("ACI_PROXY"),
-    },
-    "MERAKI": {
-        "KEY": os.getenv("MERAKI_KEY"),
-        "ORG_ID": os.getenv("MERAKI_ORG_ID"),
-        "PROXY": os.getenv("MERAKI_PROXY"),
-    },
-    "CATALYST": {
-        "HOST": os.getenv("CAT_HOST"),
-        "USER": os.getenv("CAT_USER"),
-        "PASS": os.getenv("CAT_PASS"),
-        "PROXY": os.getenv("CAT_PROXY"),
-    },
-    "SDWAN": {
-        "URL": os.getenv("SDWAN_URL"),
-        "USER": os.getenv("SDWAN_USER"),
-        "PASS": os.getenv("SDWAN_PASS"),
-        "PROXY": os.getenv("SDWAN_PROXY"),
-    }
-}
+# ==============================================================================
+# CONFIGURATION LOADING (Absolute Path Fix)
+# 設定読み込み（絶対パス対応版）
+# ==============================================================================
 
-def get_proxies(domain_key):
-    p = CONFIG[domain_key].get("PROXY")
-    return {"http": p, "https": p} if p else None
+# スクリプト自身のディレクトリを取得（これでどこから実行されても大丈夫になります）
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_PATH = os.path.join(BASE_DIR, "config.yaml")
 
-# --- 各ドメイン取得ロジック ---
+def load_config():
+    """config.yaml から設定を読み込む"""
+    try:
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            return yaml.safe_load(f)
+    except FileNotFoundError:
+        # ログにパスを出力してデバッグしやすくする
+        print(f"[Error] Config file not found at: {CONFIG_PATH}")
+        print("Running with empty configuration.")
+        return {"ACI": [], "MERAKI": [], "CATALYST": [], "SDWAN": []}
+    except yaml.YAMLError as e:
+        print(f"[Error] Failed to parse config.yaml: {e}")
+        return {"ACI": [], "MERAKI": [], "CATALYST": [], "SDWAN": []}
 
-def get_aci_inventory():
-    """ACI (APIC) からインベントリを取得"""
-    if not CONFIG["ACI"]["HOST"]: return []
+# グローバル設定として読み込み
+CONFIG = load_config()
+
+def get_proxies(proxy_url):
+    """プロキシURLが設定されている場合、requests用の辞書を返す"""
+    if proxy_url and isinstance(proxy_url, str) and proxy_url.strip():
+        return {"http": proxy_url, "https": proxy_url}
+    return None
+
+# ==============================================================================
+# Domain Specific Fetch Logic (Single Site)
+# 各ドメインの単一サイト用取得ロジック
+# ==============================================================================
+
+def fetch_single_aci(site_config):
+    """単一のACIサイトからインベントリを取得"""
     session = requests.Session()
     session.verify = False
-    session.proxies.update(get_proxies("ACI") or {})
-    host = CONFIG["ACI"]["HOST"]
-    
+    session.proxies.update(get_proxies(site_config.get("proxy")) or {})
+    host = site_config.get("host")
+    user = site_config.get("user")
+    password = site_config.get("pass")
+    site_name = site_config.get("name", host)
+
+    if not host or not user or not password:
+        return []
+
     try:
         # Login
         url = f"https://{host}/api/aaaLogin.json"
-        res = session.post(url, json={"aaaUser":{"attributes":{"name":CONFIG["ACI"]["USER"],"pwd":CONFIG["ACI"]["PASS"]}}}, timeout=TIMEOUT)
+        payload = {"aaaUser": {"attributes": {"name": user, "pwd": password}}}
+        res = session.post(url, json=payload, timeout=TIMEOUT)
         res.raise_for_status()
         token = res.json()['imdata'][0]['aaaLogin']['attributes']['token']
         
-        # Get Data
+        # Get Data (Fabric Nodes)
         res = session.get(f"https://{host}/api/node/class/fabricNode.json", cookies={'APIC-cookie': token}, timeout=TIMEOUT)
         
-        return [{
-            "id": i['fabricNode']['attributes'].get('dn'), # Distinguished Name をIDに使用
-            "domain": "ACI",
-            "name": i['fabricNode']['attributes'].get('name'),
-            "status": i['fabricNode']['attributes'].get('fabricSt', 'unknown'), # active, inactive etc.
-            "model": i['fabricNode']['attributes'].get('model'),
-            "serial": i['fabricNode']['attributes'].get('serial'),
-            "version": i['fabricNode']['attributes'].get('version'),
-            "ip": i['fabricNode']['attributes'].get('address'),
-            "dashboard_url": f"https://{host}/"
-        } for i in res.json().get('imdata', [])]
-    except Exception as e: return [{"domain": "ACI", "error": str(e)}]
+        results = []
+        for i in res.json().get('imdata', []):
+            attr = i['fabricNode']['attributes']
+            results.append({
+                "id": attr.get('dn'),
+                "domain": "ACI",
+                "controller": site_name,
+                "name": attr.get('name'),
+                "status": attr.get('fabricSt', 'unknown'),
+                "model": attr.get('model'),
+                "serial": attr.get('serial'),
+                "version": attr.get('version'),
+                "ip": attr.get('address'),
+                "dashboard_url": f"https://{host}/"
+            })
+        return results
+    except Exception as e:
+        return [{"domain": "ACI", "controller": site_name, "error": f"Connection failed: {str(e)}"}]
 
-def get_meraki_inventory():
-    """Meraki Dashboard API からインベントリとステータスを取得"""
-    if not CONFIG["MERAKI"]["KEY"]: return []
+def fetch_single_meraki(org_config):
+    """単一のMeraki Orgからインベントリを取得"""
     session = requests.Session()
-    session.proxies.update(get_proxies("MERAKI") or {})
-    headers = {"X-Cisco-Meraki-API-Key": CONFIG["MERAKI"]["KEY"]}
-    org_id = CONFIG["MERAKI"]["ORG_ID"]
+    session.proxies.update(get_proxies(org_config.get("proxy")) or {})
+    api_key = org_config.get("key")
+    org_id = str(org_config.get("org_id"))
+    org_name = org_config.get("name", org_id)
+
+    if not api_key or not org_id:
+        return []
+
+    headers = {"X-Cisco-Meraki-API-Key": api_key}
     
     try:
         # デバイス一覧とステータス一覧を並列で取得（効率化）
         inventory_url = f"https://api.meraki.com/api/v1/organizations/{org_id}/devices"
         status_url = f"https://api.meraki.com/api/v1/organizations/{org_id}/devices/statuses"
         
-        inv_res = session.get(inventory_url, headers=headers, timeout=TIMEOUT)
-        stat_res = session.get(status_url, headers=headers, timeout=TIMEOUT)
+        with ThreadPoolExecutor(max_workers=2) as ex:
+            f_inv = ex.submit(session.get, inventory_url, headers=headers, timeout=TIMEOUT)
+            f_stat = ex.submit(session.get, status_url, headers=headers, timeout=TIMEOUT)
+            
+            inv_res = f_inv.result()
+            stat_res = f_stat.result()
+            
+        inv_res.raise_for_status()
+        stat_res.raise_for_status()
         
         # ステータスをマッピング (Serial -> Status)
         status_map = {s['serial']: s.get('status') for s in stat_res.json()}
@@ -100,8 +125,9 @@ def get_meraki_inventory():
             results.append({
                 "id": serial,
                 "domain": "Meraki",
+                "controller": org_name,
                 "name": d.get('name') or serial,
-                "status": status_map.get(serial, "unknown"), # online, offline, alerting
+                "status": status_map.get(serial, "unknown"),
                 "model": d.get('model'),
                 "serial": serial,
                 "version": d.get('firmware'),
@@ -109,80 +135,147 @@ def get_meraki_inventory():
                 "dashboard_url": f"https://dashboard.meraki.com/o/{org_id}/manage/organization/inventory?search={serial}"
             })
         return results
-    except Exception as e: return [{"domain": "Meraki", "error": str(e)}]
+    except Exception as e:
+        return [{"domain": "Meraki", "controller": org_name, "error": f"Connection failed: {str(e)}"}]
 
-def get_catalyst_inventory():
-    """Catalyst Center (DNA Center) からインベントリを取得"""
-    if not CONFIG["CATALYST"]["HOST"]: return []
+def fetch_single_catalyst(site_config):
+    """単一のCatalyst Centerからインベントリを取得"""
     session = requests.Session()
     session.verify = False
-    session.proxies.update(get_proxies("CATALYST") or {})
-    host = CONFIG["CATALYST"]["HOST"]
+    session.proxies.update(get_proxies(site_config.get("proxy")) or {})
+    host = site_config.get("host")
+    user = site_config.get("user")
+    password = site_config.get("pass")
+    site_name = site_config.get("name", host)
+
+    if not host or not user or not password:
+        return []
+
     try:
-        # Auth
-        res = session.post(f"https://{host}/dna/system/api/v1/auth/token", auth=(CONFIG["CATALYST"]["USER"], CONFIG["CATALYST"]["PASS"]), timeout=TIMEOUT)
+        # Auth Token
+        auth_url = f"https://{host}/dna/system/api/v1/auth/token"
+        res = session.post(auth_url, auth=(user, password), timeout=TIMEOUT)
+        res.raise_for_status()
         token = res.json()['Token']
         
         # Get Devices
-        res = session.get(f"https://{host}/dna/intent/api/v1/network-device", headers={"X-Auth-Token": token}, timeout=TIMEOUT)
-        return [{
-            "id": d.get('id'),
-            "domain": "Catalyst",
-            "name": d.get('hostname'),
-            "status": d.get('reachabilityStatus', 'unknown'), # Reachable, Unreachable
-            "model": d.get('platformId'),
-            "serial": d.get('serialNumber'),
-            "version": d.get('softwareVersion'),
-            "ip": d.get('managementIpAddress'),
-            "dashboard_url": f"https://{host}/dna/assurance/device/details?id={d.get('id')}"
-        } for d in res.json().get('response', [])]
-    except Exception as e: return [{"domain": "Catalyst", "error": str(e)}]
+        dev_url = f"https://{host}/dna/intent/api/v1/network-device"
+        res = session.get(dev_url, headers={"X-Auth-Token": token}, timeout=TIMEOUT)
+        res.raise_for_status()
+        
+        results = []
+        for d in res.json().get('response', []):
+            results.append({
+                "id": d.get('id'),
+                "domain": "Catalyst",
+                "controller": site_name,
+                "name": d.get('hostname'),
+                "status": d.get('reachabilityStatus', 'unknown'),
+                "model": d.get('platformId'),
+                "serial": d.get('serialNumber'),
+                "version": d.get('softwareVersion'),
+                "ip": d.get('managementIpAddress'),
+                "dashboard_url": f"https://{host}/dna/assurance/device/details?id={d.get('id')}"
+            })
+        return results
+    except Exception as e:
+        return [{"domain": "Catalyst", "controller": site_name, "error": f"Connection failed: {str(e)}"}]
 
-def get_sdwan_inventory():
-    """Cisco SD-WAN Manager (vManage) からインベントリを取得"""
-    if not CONFIG["SDWAN"]["URL"]: return []
+def fetch_single_sdwan(site_config):
+    """単一のSD-WAN vManageからインベントリを取得"""
     session = requests.Session()
     session.verify = False
-    session.proxies.update(get_proxies("SDWAN") or {})
-    url = CONFIG["SDWAN"]["URL"]
+    session.proxies.update(get_proxies(site_config.get("proxy")) or {})
+    url = site_config.get("url")
+    user = site_config.get("user")
+    password = site_config.get("pass")
+    site_name = site_config.get("name", url)
+
+    if not url or not user or not password:
+        return []
+
     try:
-        # Login
-        session.post(f"{url}/j_security_check", data={'j_username': CONFIG["SDWAN"]["USER"], 'j_password': CONFIG["SDWAN"]["PASS"]}, timeout=TIMEOUT)
+        # Login (j_security_check)
+        login_url = f"{url}/j_security_check"
+        session.post(login_url, data={'j_username': user, 'j_password': password}, timeout=TIMEOUT)
         
         # Get Devices
-        res = session.get(f"{url}/dataservice/device", timeout=TIMEOUT)
-        return [{
-            "id": d.get('uuid'),
-            "domain": "SDWAN",
-            "name": d.get('host-name'),
-            "status": d.get('status', 'unknown'), # normal, error etc.
-            "model": d.get('device-model'),
-            "serial": d.get('uuid'),
-            "version": d.get('version'),
-            "ip": d.get('system-ip'),
-            "dashboard_url": f"{url}/#/app/monitor/network/system?deviceId={d.get('system-ip')}"
-        } for d in res.json().get('data', [])]
-    except Exception as e: return [{"domain": "SDWAN", "error": str(e)}]
+        dev_url = f"{url}/dataservice/device"
+        res = session.get(dev_url, timeout=TIMEOUT)
+        res.raise_for_status()
+        
+        results = []
+        for d in res.json().get('data', []):
+            results.append({
+                "id": d.get('uuid'),
+                "domain": "SDWAN",
+                "controller": site_name,
+                "name": d.get('host-name'),
+                "status": d.get('status', 'unknown'),
+                "model": d.get('device-model'),
+                "serial": d.get('uuid'),
+                "version": d.get('version'),
+                "ip": d.get('system-ip'),
+                "dashboard_url": f"{url}/#/app/monitor/network/system?deviceId={d.get('system-ip')}"
+            })
+        return results
+    except Exception as e:
+        return [{"domain": "SDWAN", "controller": site_name, "error": f"Connection failed: {str(e)}"}]
+
+# ==============================================================================
+# Aggregation Functions
+# 集約関数
+# ==============================================================================
+
+def get_aci_inventory():
+    """設定された全てのACIサイトから取得"""
+    sites = CONFIG.get("ACI", [])
+    if not sites: return []
+    results = []
+    with ThreadPoolExecutor(max_workers=len(sites) or 1) as executor:
+        for res in executor.map(fetch_single_aci, sites):
+            results.extend(res)
+    return results
+
+def get_meraki_inventory():
+    """設定された全てのMeraki Orgから取得"""
+    orgs = CONFIG.get("MERAKI", [])
+    if not orgs: return []
+    results = []
+    with ThreadPoolExecutor(max_workers=len(orgs) or 1) as executor:
+        for res in executor.map(fetch_single_meraki, orgs):
+            results.extend(res)
+    return results
+
+def get_catalyst_inventory():
+    """設定された全てのCatalyst Centerから取得"""
+    sites = CONFIG.get("CATALYST", [])
+    if not sites: return []
+    results = []
+    with ThreadPoolExecutor(max_workers=len(sites) or 1) as executor:
+        for res in executor.map(fetch_single_catalyst, sites):
+            results.extend(res)
+    return results
+
+def get_sdwan_inventory():
+    """設定された全てのSD-WAN vManageから取得"""
+    sites = CONFIG.get("SDWAN", [])
+    if not sites: return []
+    results = []
+    with ThreadPoolExecutor(max_workers=len(sites) or 1) as executor:
+        for res in executor.map(fetch_single_sdwan, sites):
+            results.extend(res)
+    return results
 
 def get_all_inventory():
-    """すべてのドメインから並列でデータを取得する"""
-    tasks = [
-        get_aci_inventory,
-        get_meraki_inventory,
-        get_catalyst_inventory,
-        get_sdwan_inventory
-    ]
-    
+    """登録されている全ドメイン・全サイトから一括並列取得"""
+    tasks = [get_aci_inventory, get_meraki_inventory, get_catalyst_inventory, get_sdwan_inventory]
     combined_data = []
-    # 最大4スレッドで並列実行
     with ThreadPoolExecutor(max_workers=len(tasks)) as executor:
-        futures = [executor.submit(t) for t in tasks]
-        for future in futures:
+        for future in [executor.submit(t) for t in tasks]:
             try:
-                result = future.result()
-                if isinstance(result, list):
-                    combined_data.extend(result)
+                res = future.result()
+                if isinstance(res, list): combined_data.extend(res)
             except Exception as e:
-                combined_data.append({"domain": "System", "error": f"Thread error: {str(e)}"})
-                
+                combined_data.append({"error": f"Domain fetch error: {str(e)}"})
     return combined_data

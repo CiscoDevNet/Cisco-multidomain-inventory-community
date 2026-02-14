@@ -1,0 +1,70 @@
+# ==============================================================================
+# Cisco Multi-domain Inventory Configuration
+# ==============================================================================
+# 1. Copy this file to "config.yaml"
+#    このファイルを "config.yaml" にコピーしてください。
+# 2. Add "config.yaml" to your .gitignore to prevent leaking secrets!
+#    パスワードが含まれるため、必ず .gitignore に "config.yaml" を追加してください！
+# ==============================================================================
+
+# --- Cisco ACI (Data Center) ---
+# List multiple APIC clusters here.
+# 複数のAPICクラスタをリスト形式で記述できます。
+ACI:
+  - name: "Tokyo-DC"          # Controller Name (Identifier)
+    host: "apic1.tokyo.local" # IP or Hostname
+    user: "admin"
+    pass: "Cisco123!"
+    proxy: ""                 # Optional: "http://proxy.example.com:8080"
+
+  - name: "Osaka-DR"
+    host: "10.2.1.5"
+    user: "admin"
+    pass: "SecurePass!"
+    proxy: ""
+
+# --- Cisco Meraki (Cloud Managed) ---
+# List multiple Organizations here.
+# 複数のオーガニゼーションを登録できます。
+MERAKI:
+  - name: "Global-Org"
+    key: "YOUR_API_KEY_HERE"
+    org_id: "12345678"
+    proxy: ""
+
+  - name: "Japan-Lab-Org"
+    key: "YOUR_API_KEY_HERE" # Can be same or different key
+    org_id: "87654321"
+    proxy: ""
+
+# --- Cisco Catalyst Center (formerly DNA Center) ---
+# List multiple DNAC appliances/clusters.
+# 複数のCatalyst Centerアプライアンスを登録できます。
+CATALYST:
+  - name: "HQ-Cluster"
+    host: "dnac.hq.example.com"
+    user: "admin"
+    pass: "Cisco123!"
+    proxy: ""
+
+  - name: "Branch-Appliance"
+    host: "192.168.100.10"
+    user: "admin"
+    pass: "Cisco123!"
+    proxy: ""
+
+# --- Cisco SD-WAN (Catalyst SD-WAN) ---
+# List multiple vManage instances.
+# 複数のvManageインスタンスを登録できます。
+SDWAN:
+  - name: "Prod-vManage"
+    url: "https://vmanage.prod.example.com" # Include https://
+    user: "admin"
+    pass: "Cisco123!"
+    proxy: ""
+
+  - name: "Lab-vManage"
+    url: "https://10.255.1.1"
+    user: "admin"
+    pass: "LabPass123!"
+    proxy: ""
