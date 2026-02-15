@@ -85,6 +85,8 @@ Interact with your network infrastructure using natural language in Claude Deskt
 
 <img width="800" alt="MCP Integration Concept" src="https://github.com/user-attachments/assets/e6a5effd-a6c1-402e-be97-f54f3602cda5" />
 
+<img width="800" alt="MCP Integration Concept" src="https://github.com/user-attachments/assets/993849f8-078b-484e-bd82-f26d818c3815" />
+
 #### Web Interface
 ```bash
 python multidomain_inventory_web.py
