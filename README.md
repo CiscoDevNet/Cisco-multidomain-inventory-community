@@ -81,11 +81,11 @@ You don't need to remember commands. Just ask Claude naturally.
 
 #### AI Assistant (via MCP)
 Interact with your network infrastructure using natural language in Claude Desktop.
-<img width="800" alt="MCP Integration Concept" src="https://github.com/user-attachments/assets/4bfcf64e-a475-4de1-a7c5-816fbca72bed" />
+<img width="800" alt="MCP Integration Concept - summarize" src="https://github.com/user-attachments/assets/4bfcf64e-a475-4de1-a7c5-816fbca72bed" />
 
-<img width="800" alt="MCP Integration Concept" src="https://github.com/user-attachments/assets/e6a5effd-a6c1-402e-be97-f54f3602cda5" />
+<img width="800" alt="MCP Integration Concept - report" src="https://github.com/user-attachments/assets/e6a5effd-a6c1-402e-be97-f54f3602cda5" />
 
-<img width="800" alt="MCP Integration Concept" src="https://github.com/user-attachments/assets/993849f8-078b-484e-bd82-f26d818c3815" />
+<img width="800" alt="MCP Integration Concept- topo" src="https://github.com/user-attachments/assets/993849f8-078b-484e-bd82-f26d818c3815" />
 
 #### Web Interface
 ```bash
