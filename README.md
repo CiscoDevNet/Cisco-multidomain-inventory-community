@@ -89,7 +89,15 @@ Interact with your network infrastructure using natural language in Claude Deskt
 
 #### Web Interface
 ```bash
-python multidomain_inventory_web.py
+(.venv) ~ python multidomain_inventory_web.py 
+🚀 Full-Stack Inventory Server starting at http://127.0.0.1:5001
+ * Serving Flask app 'multidomain_inventory_web'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.128.104:5001
+Press CTRL+C to quit
 ```
 
 <img width="800" alt="Flask web app" src="https://github.com/user-attachments/assets/4cf740d8-6bef-440f-9a0c-5989e7a14fbe" />
@@ -97,9 +105,12 @@ python multidomain_inventory_web.py
 
 #### CLI
 ```bash
-python multidomain_inventory_cli.py
-```
+(.venv) ~ python multidomain_inventory_cli.py 
 
+🚀 Starting Multi-Domain Inventory Collector (CLI)...
+
+Fetching data from all configured controllers...
+```
 ---
 
 <a name="japanese"></a>
