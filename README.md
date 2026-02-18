@@ -92,7 +92,7 @@ Interact with your network infrastructure using natural language in Claude Deskt
 python multidomain_inventory_web.py
 ```
 
-<img width="800" alt="Flask web app" src="https://github.com/user-attachments/assets/6e6f32d6-e29e-4b53-bf13-e3f40079fa55" />
+<img width="800" alt="Flask web app" src="https://github.com/user-attachments/assets/4cf740d8-6bef-440f-9a0c-5989e7a14fbe" />
 *(Note: Using the Web UI screenshot as a reference for inventory visibility)*
 
 #### CLI
