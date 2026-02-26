@@ -31,13 +31,13 @@ ACI:
 # List multiple Organizations here.
 # 複数のオーガニゼーションを登録できます。
 MERAKI:
-  - name: "Global-Org"
-    key: "YOUR_API_KEY_HERE"
-    org_id: "12345678"
+  - name: "Global-Org"           # Display Name or Organization Name (e.g. "Cisco-Tokyo-Lab")
+    key: "YOUR_API_KEY_HERE"     # Dashboard API Key
+    org_id: "12345678"           # Meraki Organization ID
     proxy: ""
 
   - name: "Japan-Lab-Org"
-    key: "YOUR_API_KEY_HERE" # Can be same or different key
+    key: "YOUR_API_KEY_HERE"
     org_id: "87654321"
     proxy: ""
 
