@@ -1,3 +1,7 @@
+# Copyright 2026 Cisco Systems, Inc. and/or its affiliates
+#
+# SPDX-License-Identifier: MIT
+
 import os
 import yaml
 import requests

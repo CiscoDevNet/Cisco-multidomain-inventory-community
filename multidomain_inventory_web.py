@@ -1,3 +1,7 @@
+# Copyright 2026 Cisco Systems, Inc. and/or its affiliates
+#
+# SPDX-License-Identifier: MIT
+
 from flask import Flask, render_template_string, make_response, redirect, url_for
 import io
 import csv

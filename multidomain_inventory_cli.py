@@ -1,3 +1,7 @@
+# Copyright 2026 Cisco Systems, Inc. and/or its affiliates
+#
+# SPDX-License-Identifier: MIT
+
 import sys
 import time
 from multidomain_inventory_core import get_all_inventory
