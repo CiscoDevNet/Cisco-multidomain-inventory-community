@@ -1,39 +1,39 @@
-# Security Policy
+# Security Policies and Procedures
 
-## Supported Versions
+This document outlines security procedures and general policies for the
+`Cisco-multidomain-inventory-community` project.
 
-Currently, the following versions of **multidomain_inventory_mcp** are supported with security updates:
+- [Reporting a Bug](#reporting-a-bug)
+- [Disclosure Policy](#disclosure-policy)
+- [Comments on this Policy](#comments-on-this-policy)
 
-| Version | Supported          |
-| ------- | ------------------ |
-| main    | :white_check_mark: |
+## Reporting a Bug
 
-## Reporting a Vulnerability
+The `Cisco-multidomain-inventory-community` team and community take all security bugs in
+`Cisco-multidomain-inventory-community` seriously. Thank you for improving the security of
+`Cisco-multidomain-inventory-community`. We appreciate your efforts and responsible disclosure and
+will make every effort to acknowledge your contributions.
 
-We take the security of this project seriously. If you believe you have found a security vulnerability, please do **not** create a public GitHub issue. Instead, please report it through the following process:
+Report security bugs by emailing `oss-security@cisco.com`.
 
-### How to Report
+The lead maintainer will acknowledge your email within 48 hours, and will send a
+more detailed response within 48 hours indicating the next steps in handling
+your report. After the initial reply to your report, the security team will
+endeavor to keep you informed of the progress towards a fix and full
+announcement, and may ask for additional information or guidance.
 
-Please send an email to the maintainer:
-* **Contact:** kikuta@cisco.com
+## Disclosure Policy
 
-In your report, please include:
-1. A description of the vulnerability.
-2. Steps to reproduce the issue (proof of concept).
-3. Any potential impact you have identified.
+When the security team receives a security bug report, they will assign it to a
+primary handler. This person will coordinate the fix and release process,
+involving the following steps:
 
-### Response Process
+- Confirm the problem and determine the affected versions.
+- Audit code to find any potential similar problems.
+- Prepare fixes for all releases still under maintenance. These fixes will be
+  released as quickly as possible.
 
-After receiving your report:
-1. We will acknowledge receipt within 48-72 hours.
-2. We will work on a fix and keep you updated on the progress.
-3. Once the fix is verified, we will release a new version and, if appropriate, provide credit to the reporter.
+## Comments on this Policy
 
-## Privacy and Ethics
-
-Please act responsibly and avoid:
-* Accessing private data.
-* Disrupting services for other users.
-* Using automated scanners that generate high traffic.
-
-Thank you for helping keep this project secure!
+If you have suggestions on how this process could be improved please submit a
+pull request.
